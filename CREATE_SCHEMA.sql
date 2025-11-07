@@ -1,6 +1,7 @@
--- DROP DATABASE SneezePharma;
 USE master;
 GO
+
+-- DROP DATABASE SneezePharma;
 
 CREATE DATABASE SneezePharma;
 GO
@@ -111,7 +112,7 @@ CREATE TABLE ItensVendas (
 	CDBMedicamento NUMERIC(13,0) NOT NULL
 );
 
-CREATE TABLE Medicamento (
+CREATE TABLE Medicamentos (
 	CDB NUMERIC(13,0) NOT NULL PRIMARY KEY,
 	Nome VARCHAR(255) NOT NULL,
 	ValorVenda DECIMAL(4,2) NOT NULL,
@@ -174,4 +175,87 @@ CREATE TABLE ItensCompras (
 );
 
 
--- CHAVES ESTRANGEIRAS --
+---- CHAVES ESTRANGEIRAS ----
+
+-- Clientes --
+ALTER TABLE Clientes
+ADD FOREIGN KEY (IdEndereco) REFERENCES EnderecosClientes (Id);
+
+ALTER TABLE Clientes
+ADD FOREIGN KEY (Situacao) REFERENCES Situacoes (Id);
+
+-- ClientesRestritos --
+ALTER TABLE ClientesRestritos
+ADD FOREIGN KEY (IdCliente) REFERENCES Clientes (Id);
+
+-- TelefonesClientes --
+ALTER TABLE TelefonesClientes
+ADD FOREIGN KEY (IdCliente) REFERENCES Clientes (Id);
+
+-- EmailsClientes --
+ALTER TABLE EmailsClientes
+ADD FOREIGN KEY (IdCliente) REFERENCES Clientes (Id);
+
+-- Fornecedores --
+ALTER TABLE Fornecedores
+ADD FOREIGN KEY (Situacao) REFERENCES Situacoes (Id);
+
+-- FornecedoresRestritos --
+ALTER TABLE FornecedoresRestritos
+ADD FOREIGN KEY (IdFornecedor) REFERENCES Fornecedores (Id);
+
+-- EnderecosFornecedores --
+ALTER TABLE EnderecosFornecedores
+ADD FOREIGN KEY (IdFornecedor) REFERENCES Fornecedores (Id);
+
+-- TelefonesFornecedores --
+ALTER TABLE TelefonesFornecedores
+ADD FOREIGN KEY (IdFornecedor) REFERENCES Fornecedores (Id);
+
+-- EmailsFornecedores --
+ALTER TABLE EmailsFornecedores
+ADD FOREIGN KEY (IdFornecedor) REFERENCES Fornecedores (Id);
+
+-- VendasMedicamentos --
+ALTER TABLE VendasMedicamentos
+ADD FOREIGN KEY (IdCliente) REFERENCES Clientes (Id);
+
+-- ItensVendas --
+ALTER TABLE ItensVendas
+ADD FOREIGN KEY (IdVenda) REFERENCES VendasMedicamentos (Id);
+
+ALTER TABLE ItensVendas
+ADD FOREIGN KEY (CDBMedicamento) REFERENCES Medicamentos (CDB);
+
+-- Medicamentos --
+ALTER TABLE Medicamentos
+ADD FOREIGN KEY (Situacao) REFERENCES Situacoes (Id);
+
+ALTER TABLE Medicamentos
+ADD FOREIGN KEY (Categoria) REFERENCES CategoriasMedicamentos (Id);
+
+-- PrincipiosAtivos --
+ALTER TABLE PrincipiosAtivos
+ADD FOREIGN KEY (Situacao) REFERENCES Situacoes (Id);
+
+-- Producoes --
+ALTER TABLE Producoes
+ADD FOREIGN KEY (CDBMedicamento) REFERENCES Medicamentos (CDB);
+
+-- ItensProducoes --
+ALTER TABLE ItensProducoes
+ADD FOREIGN KEY (IdPrincipioAtivo) REFERENCES PrincipiosAtivos (Id);
+
+ALTER TABLE ItensProducoes
+ADD FOREIGN KEY (IdProducao) REFERENCES Producoes (Id);
+
+-- Compras --
+ALTER TABLE Compras
+ADD FOREIGN KEY (IdFornecedor) REFERENCES Fornecedores (Id);
+
+-- ItensCompras --
+ALTER TABLE ItensCompras
+ADD FOREIGN KEY (IdCompra) REFERENCES Compras (Id);
+
+ALTER TABLE ItensCompras
+ADD FOREIGN KEY (IdPrincipioAtivo) REFERENCES PrincipiosAtivos (Id);
