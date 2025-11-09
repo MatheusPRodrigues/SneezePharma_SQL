@@ -106,8 +106,6 @@ BEGIN
 	ON vm.Id = i.IdVenda;
 
 END;
-
-DROP TRIGGER ValidarItensVendas;
 GO;
 
 -- Verifica se o Fornecedor possuí mais de dois anos de fundação, se ele está ativo e se ele não está restrito. Se acontecer o insert,
@@ -157,7 +155,6 @@ BEGIN
 
 
 END;
-DROP TRIGGER ValidarCompraIngrediente;
 GO
 
 -- verifica se já não existe três registro na tabela ItensCompras relacionado ao IdCompra da inserçao; verifica se o principio ativo
@@ -216,7 +213,28 @@ BEGIN
 END; 
 GO
 
-DROP TRIGGER ValidarItensCompras;
+-- Producoes --
+CREATE TRIGGER ValidarProducoes
+ON Producoes
+INSTEAD OF INSERT
+AS
+BEGIN
+	SET NOCOUNT ON
+	IF EXISTS (
+		SELECT 1
+		FROM inserted i
+		JOIN Medicamentos m
+		ON i.CDBMedicamento = m.CDB
+		WHERE m.Situacao = 'I'
+	)
+	BEGIN
+		THROW 50041, 'O medicamento informado não pode ser produzido, pois está inativo!', 16;
+	END
+
+	INSERT INTO Producoes (Quantidade, DataProducao, CDBMedicamento)
+	SELECT Quantidade, DataProducao, CDBMedicamento
+	FROM inserted;
+END;
 GO
 
 -- ItensDeProducao --

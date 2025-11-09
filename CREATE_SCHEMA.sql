@@ -85,7 +85,7 @@ CREATE TABLE TelefonesFornecedores (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	CodPais INT,
 	DDD INT,
-	Numero NUMERIC NOT NULL,
+	Numero VARCHAR(18) NOT NULL,
 	IdFornecedor INT NOT NULL
 );
 
@@ -230,12 +230,18 @@ ADD FOREIGN KEY (CDBMedicamento) REFERENCES Medicamentos (CDB);
 ALTER TABLE ItensVendas
 ADD UNIQUE (IdVenda, CDBMedicamento);
 
+ALTER TABLE ItensVendas
+ADD CHECK (Quantidade > 0 AND Quantidade <= 999);
+
 -- Medicamentos --
 ALTER TABLE Medicamentos
 ADD FOREIGN KEY (Situacao) REFERENCES Situacoes (Id);
 
 ALTER TABLE Medicamentos
 ADD FOREIGN KEY (Categoria) REFERENCES CategoriasMedicamentos (Id);
+
+ALTER TABLE Medicamentos
+ADD CHECK (ValorVenda > 0);
 
 -- PrincipiosAtivos --
 ALTER TABLE PrincipiosAtivos
@@ -245,12 +251,18 @@ ADD FOREIGN KEY (Situacao) REFERENCES Situacoes (Id);
 ALTER TABLE Producoes
 ADD FOREIGN KEY (CDBMedicamento) REFERENCES Medicamentos (CDB);
 
+ALTER TABLE Producoes
+ADD CHECK (Quantidade > 0 AND Quantidade <= 999);
+
 -- ItensProducoes --
 ALTER TABLE ItensProducoes
 ADD FOREIGN KEY (IdPrincipioAtivo) REFERENCES PrincipiosAtivos (Id);
 
 ALTER TABLE ItensProducoes
 ADD FOREIGN KEY (IdProducao) REFERENCES Producoes (Id);
+
+ALTER TABLE ItensProducoes
+ADD CHECK (QuantidadePrincipio > 0 AND QuantidadePrincipio <= 9999);
 
 -- Compras --
 ALTER TABLE Compras
@@ -262,3 +274,9 @@ ADD FOREIGN KEY (IdCompra) REFERENCES Compras (Id);
 
 ALTER TABLE ItensCompras
 ADD FOREIGN KEY (IdPrincipioAtivo) REFERENCES PrincipiosAtivos (Id);
+
+ALTER TABLE ItensCompras
+ADD CHECK (Quantidade > 0 AND Quantidade <= 999);
+
+ALTER TABLE ItensCompras
+ADD CHECK (ValorUnitario > 0);
