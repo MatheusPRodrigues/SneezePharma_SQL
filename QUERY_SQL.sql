@@ -1,3 +1,6 @@
+USE SneezePharma;
+GO
+
 -- QUERY DE CONSULTA DA TABELA Clientes --
 SELECT
 	c.Id, c.Nome, c.CPF, c.DataNascimento, c.DataUltimaCompra, c.DataCadastro,

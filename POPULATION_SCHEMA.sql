@@ -1,3 +1,6 @@
+USE SneezePharma;
+GO
+
 -- Enderecos Clientes --
 INSERT INTO EnderecosClientes VALUES ('Av. Princesa Isabel', 505, NULL, 'Maria Luiza', 'Aracity', 'SP', 14820055);
 INSERT INTO EnderecosClientes VALUES ('Rua Bananinha', 1023, 'Em frente a bananeira', 'Santana', 'Bananacity', 'MG', 31471844);
@@ -54,18 +57,15 @@ INSERT INTO Producoes VALUES
 
 -- VendasMedicamentos --
 INSERT INTO VendasMedicamentos VALUES (GETDATE(), NULL, 1);
-INSERT INTO VendasMedicamentos VALUES (GETDATE(), NULL, 2);
 INSERT INTO VendasMedicamentos VALUES (GETDATE(), NULL, 1);
 
 -- ItensVendas --
-INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (5, 2, '7891234567890');
-INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (2, 2, '7891234567891');
-INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (2, 2, '7891234567892');
+INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (5, 1, '7891234567890');
+INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (2, 1, '7891234567891');
+INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (2, 1, '7891234567892');
 
-INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (4, 3, '7891234567892');
-INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (4, 3, '7891234567890');
-
-INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (2, 5, '7891234567891');
+INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (4, 2, '7891234567892');
+INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento) VALUES (4, 2, '7891234567890');
 
 -- Fornecedores --
 -- Fornecedor 1: empresa antiga e ativa
@@ -111,7 +111,6 @@ VALUES ('Rua das Palmeiras', 240, 'Galpão 2', 'Boa Viagem', 'Recife', 'PE', 'Bra
 
 -- FornecedoresRestritos -- 
 INSERT INTO FornecedoresRestritos(IdFornecedor) VALUES (4);
-SELECT * FROM FornecedoresRestritos;
 
 -- EmailsFornecedores --
 INSERT INTO EmailsFornecedores VALUES
@@ -121,7 +120,6 @@ INSERT INTO EmailsFornecedores VALUES
 ('labsaolucas@labsl.com', 4),
 ('biomedic@gmail.com', 5);
 
-SELECT * FROM EmailsFornecedores;
 
 -- TelefonesFornecedores --
 INSERT INTO TelefonesFornecedores VALUES 
@@ -130,8 +128,6 @@ INSERT INTO TelefonesFornecedores VALUES
 (55, 41, '30451965', 3),
 (NULL, NULL, '08001459835', 4),
 (55, 81, '40531552', 5);
-
-SELECT * FROM TelefonesFornecedores;
 
 -- Compras --
 -- Compra do Fornecedor 1: empresa antiga e ativa - Sucesso

@@ -1,7 +1,11 @@
 USE master;
 GO
 
--- DROP DATABASE SneezePharma;
+/*
+ALTER DATABASE SneezePharma SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+DROP DATABASE SneezePharma;
+GO
+*/
 
 CREATE DATABASE SneezePharma;
 GO

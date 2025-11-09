@@ -1,3 +1,7 @@
+USE SneezePharma;
+GO
+
+GO
 CREATE TRIGGER ValidarVendaMedicamento
 ON VendasMedicamentos
 INSTEAD OF INSERT
@@ -38,10 +42,10 @@ BEGIN
 	FROM Clientes c
 	JOIN inserted i
 	ON c.Id = i.IdCliente;
-
 END;
 GO
 
+GO
 CREATE TRIGGER ValidarItensVendas
 ON ItensVendas
 INSTEAD OF INSERT
@@ -61,7 +65,7 @@ BEGIN
 	BEGIN
 		THROW 50017, 'Medicamento está inativo ou ainda não foi produzido!', 16;
 	END
-
+	
 	IF EXISTS (
         SELECT 1
         FROM inserted i
@@ -71,9 +75,8 @@ BEGIN
     )
     BEGIN
         THROW 50020, 'Cada venda só pode ter até 3 registros de medicamentos!', 16;
-	
 	END
-
+	
 	-- insere na tabela ItensVendas
 	INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento)
 	SELECT Quantidade, IdVenda, CDBMedicamento
@@ -104,12 +107,12 @@ BEGIN
 	FROM VendasMedicamentos vm
 	INNER JOIN inserted i 
 	ON vm.Id = i.IdVenda;
-
 END;
-GO;
+GO
 
 -- Verifica se o Fornecedor possuí mais de dois anos de fundação, se ele está ativo e se ele não está restrito. Se acontecer o insert,
 -- atualiza a data do último fornecimento do Fornecedor
+GO
 CREATE TRIGGER ValidarCompraIngrediente
 ON Compras
 INSTEAD OF INSERT
@@ -127,7 +130,7 @@ BEGIN
 	BEGIN
 		THROW 50001, 'Fornecedor precisa ter no mínimo dois anos de fundação para poder realizar uma venda!', 16;
 	END
-
+	
 	IF EXISTS (
 		SELECT 1
 		FROM inserted i
@@ -140,7 +143,7 @@ BEGIN
 	BEGIN 
 		THROW 50002, 'Fornecedor inativo ou restringido!', 16;
 	END
-
+	
 	-- insere na tabela Compras
 	INSERT INTO Compras (DataCompra, ValorTotal, IdFornecedor)
 	SELECT DataCompra, NULL, IdFornecedor
@@ -152,14 +155,13 @@ BEGIN
     FROM Fornecedores f
     INNER JOIN inserted i 
 	ON f.Id = i.IdFornecedor;
-
-
 END;
 GO
 
 -- verifica se já não existe três registro na tabela ItensCompras relacionado ao IdCompra da inserçao; verifica se o principio ativo
 -- informado pa a inserçao está ativo; se a inserção der certo, atualiza a data da ultima compra na tabela PrincipiosAtivos 
 -- e atualiza ValorTotal na tabela Compras
+GO
 CREATE TRIGGER ValidarItensCompras
 ON ItensCompras
 INSTEAD OF INSERT
@@ -187,9 +189,8 @@ BEGIN
     )
     BEGIN
         THROW 50020, 'Cada compra só pode ter até 3 registros de princípios ativos!', 16;
-	
 	END
-
+	
 	-- insere na tabela ItensCompra
 	INSERT INTO ItensCompras (Quantidade, ValorUnitario, ValorTotal, IdCompra, IdPrincipioAtivo)
 	SELECT Quantidade, ValorUnitario, (Quantidade * ValorUnitario), IdCompra, IdPrincipioAtivo
@@ -214,6 +215,7 @@ END;
 GO
 
 -- Producoes --
+GO
 CREATE TRIGGER ValidarProducoes
 ON Producoes
 INSTEAD OF INSERT
@@ -238,6 +240,7 @@ END;
 GO
 
 -- ItensDeProducao --
+GO
 CREATE TRIGGER ValidarItensProducoes
 ON ItensProducoes
 INSTEAD OF INSERT
@@ -259,13 +262,13 @@ BEGIN
 	INSERT INTO ItensProducoes (QuantidadePrincipio, IdPrincipioAtivo, IdProducao)
 	SELECT QuantidadePrincipio, IdPrincipioAtivo, IdProducao
 	FROM inserted;
-
 END;
 GO
 
 -- // TRIGGERS DE DELETE \\ --
 
 -- Clientes --
+GO
 CREATE TRIGGER DeletarCliente
 ON Clientes
 INSTEAD OF DELETE
@@ -276,6 +279,7 @@ END;
 GO
 
 -- Fornecedores --
+GO
 CREATE TRIGGER DeletarFornecedor
 ON Fornecedores
 INSTEAD OF DELETE
@@ -286,6 +290,7 @@ END;
 GO
 
 -- PrincipioAtivo --
+GO
 CREATE TRIGGER DeletarPrincipioAtivo
 ON PrincipiosAtivos
 INSTEAD OF DELETE
@@ -296,6 +301,7 @@ END;
 GO
 
 -- Medicamentos --
+GO
 CREATE TRIGGER DeletarMedicamento
 ON Medicamentos
 INSTEAD OF DELETE
