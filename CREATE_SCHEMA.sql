@@ -107,7 +107,7 @@ CREATE TABLE VendasMedicamentos (
 CREATE TABLE ItensVendas (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	Quantidade INT NOT NULL,
-	ValorTotal DECIMAL(10,2) NOT NULL,
+	ValorTotal DECIMAL(10,2),
 	IdVenda INT NOT NULL,
 	CDBMedicamento NUMERIC(13,0) NOT NULL
 );
@@ -226,6 +226,9 @@ ADD FOREIGN KEY (IdVenda) REFERENCES VendasMedicamentos (Id);
 
 ALTER TABLE ItensVendas
 ADD FOREIGN KEY (CDBMedicamento) REFERENCES Medicamentos (CDB);
+
+ALTER TABLE ItensVendas
+ADD UNIQUE (IdVenda, CDBMedicamento);
 
 -- Medicamentos --
 ALTER TABLE Medicamentos
