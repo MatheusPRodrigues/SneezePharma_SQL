@@ -1,11 +1,11 @@
 USE master;
 GO
 
-/*
-ALTER DATABASE SneezePharma SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-DROP DATABASE SneezePharma;
-GO
-*/
+
+--ALTER DATABASE SneezePharma SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+--DROP DATABASE SneezePharma;
+--GO
+
 
 CREATE DATABASE SneezePharma;
 GO
@@ -116,10 +116,15 @@ CREATE TABLE ItensVendas (
 	CDBMedicamento NUMERIC(13,0) NOT NULL
 );
 
+CREATE TYPE Tipo_ItensVendas AS TABLE (
+	Quantidade INT NOT NULL,
+	CDBMedicamento NUMERIC(13,0) NOT NULL
+);
+
 CREATE TABLE Medicamentos (
 	CDB NUMERIC(13,0) NOT NULL PRIMARY KEY,
 	Nome VARCHAR(255) NOT NULL,
-	ValorVenda DECIMAL(4,2) NOT NULL,
+	ValorVenda DECIMAL(10,2) NOT NULL,
 	DataCadastro DATE NOT NULL,
 	DataUltimaVenda DATE,
 	Situacao CHAR(1) NOT NULL,
@@ -160,6 +165,10 @@ CREATE TABLE ItensProducoes (
 	IdProducao INT NOT NULL
 );
 
+CREATE TYPE Tipo_ItensProducoes AS TABLE(
+	QuantidadePrincipio INT NOT NULL,
+	IdPrincipioAtivo CHAR(6) NOT NULL
+);
 
 -- COMPRAS --
 CREATE TABLE Compras (
@@ -172,12 +181,17 @@ CREATE TABLE Compras (
 CREATE TABLE ItensCompras (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	Quantidade INT NOT NULL,
-	ValorUnitario DECIMAL(4,2) NOT NULL,
-	ValorTotal DECIMAL(10,2) NOT NULL,
+	ValorUnitario DECIMAL(10,2) NOT NULL,
+	ValorTotal AS (Quantidade * ValorUnitario),
 	IdCompra INT NOT NULL,
 	IdPrincipioAtivo CHAR(6) NOT NULL
 );
 
+CREATE TYPE Tipo_ItensCompras AS TABLE (
+	Quantidade INT NOT NULL,
+	ValorUnitario DECIMAL(10,2) NOT NULL,
+	IdPrincipioAtivo CHAR(6) NOT NULL
+);
 
 ---- CHAVES ESTRANGEIRAS ----
 

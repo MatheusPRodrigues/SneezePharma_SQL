@@ -2,9 +2,9 @@ USE SneezePharma;
 GO
 
 GO
-CREATE TRIGGER ValidarVendaMedicamento
+CREATE OR ALTER TRIGGER trg_ValidarVendaMedicamento
 ON VendasMedicamentos
-INSTEAD OF INSERT
+AFTER INSERT
 AS 
 BEGIN
 	SET NOCOUNT ON;
@@ -17,6 +17,7 @@ BEGIN
 		WHERE c.DataNascimento > DATEADD(YEAR, -18, GETDATE())
 	)
 	BEGIN
+		ROLLBACK TRANSACTION;
 		THROW 50001, 'Cliente deve ter mínimo de 18 anos para realizar compra!', 16;
 	END
 
@@ -30,23 +31,21 @@ BEGIN
 		WHERE c.Situacao = 'I' OR cr.IdCliente IS NOT NULL
 	)
 	BEGIN 
+		ROLLBACK TRANSACTION;
 		THROW 50002, 'Cliente inativo ou restringido!', 16;
 	END
-
-	INSERT INTO VendasMedicamentos (DataVenda, ValorTotal, IdCliente)
-	SELECT DataVenda, NULL, IdCliente
-	FROM inserted;
 
 	UPDATE c
 	SET c.DataUltimaCompra = GETDATE()
 	FROM Clientes c
 	JOIN inserted i
 	ON c.Id = i.IdCliente;
+
 END;
 GO
 
 GO
-CREATE TRIGGER ValidarItensVendas
+CREATE OR ALTER TRIGGER trg_ValidarItensVendas
 ON ItensVendas
 INSTEAD OF INSERT
 AS 
@@ -66,23 +65,28 @@ BEGIN
 		THROW 50017, 'Medicamento está inativo ou ainda não foi produzido!', 16;
 	END
 	
-	IF EXISTS (
-        SELECT 1
-        FROM inserted i
-        WHERE (SELECT COUNT(*) 
-               FROM ItensVendas iv
-               WHERE i.IdVenda = iv.IdVenda) >= 3
-    )
+	IF ((SELECT COUNT(*) FROM inserted) >= 3)
     BEGIN
         THROW 50020, 'Cada venda só pode ter até 3 registros de medicamentos!', 16;
 	END
 	
-	-- insere na tabela ItensVendas
+	IF ((SELECT COUNT(*) FROM inserted) < 1)
+    BEGIN
+        THROW 50021, 'É necessário selecionar pelo menos 1 medicamento para realizar a venda!', 16;
+	END
+
 	INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento)
 	SELECT Quantidade, IdVenda, CDBMedicamento
 	FROM inserted;
+END;
+GO
 
-	-- atualiza ValorTotal do ItensVendas
+GO
+CREATE OR ALTER TRIGGER trg_AtualizarValorTotalItensVendas
+ON ItensVendas
+AFTER INSERT
+AS
+BEGIN
 	UPDATE iv
 	SET iv.ValorTotal = m.ValorVenda * iv.Quantidade
 	FROM ItensVendas iv
@@ -91,15 +95,29 @@ BEGIN
 	AND iv.CDBMedicamento = i.CDBMedicamento
 	INNER JOIN Medicamentos m 
     ON m.CDB = iv.CDBMedicamento;
+END;
+GO
 
-	-- atualiza UltimaVenda na tabela Medicamentos
+GO
+CREATE OR ALTER TRIGGER trg_AtualizarUltimaVendaMedicamentos
+ON ItensVendas
+AFTER INSERT
+AS
+BEGIN
 	UPDATE m 
     SET m.DataUltimaVenda = GETDATE()
     FROM Medicamentos m
     INNER JOIN inserted i 
 	ON m.CDB = i.CDBMedicamento;
+END;
+GO
 
-	-- atualiza ValorTotal na tabela Vendas
+GO
+CREATE OR ALTER TRIGGER trg_AtualizarValorTotalVendas
+ON ItensVendas
+AFTER INSERT
+AS
+BEGIN
 	UPDATE vm
 	SET vm.ValorTotal = (SELECT SUM(ValorTotal) 
                         FROM ItensVendas iv 
@@ -110,12 +128,14 @@ BEGIN
 END;
 GO
 
+
+
 -- Verifica se o Fornecedor possuí mais de dois anos de fundação, se ele está ativo e se ele não está restrito. Se acontecer o insert,
 -- atualiza a data do último fornecimento do Fornecedor
 GO
-CREATE TRIGGER ValidarCompraIngrediente
+CREATE OR ALTER TRIGGER trg_ValidarCompraIngrediente
 ON Compras
-INSTEAD OF INSERT
+AFTER INSERT
 AS 
 BEGIN
 	SET NOCOUNT ON;
@@ -128,6 +148,7 @@ BEGIN
 		WHERE f.DataAbertura > DATEADD(YEAR, -2, GETDATE())
 	)
 	BEGIN
+		ROLLBACK TRANSACTION;
 		THROW 50001, 'Fornecedor precisa ter no mínimo dois anos de fundação para poder realizar uma venda!', 16;
 	END
 	
@@ -141,15 +162,10 @@ BEGIN
 		WHERE f.Situacao = 'I' OR fr.IdFornecedor IS NOT NULL
 	)
 	BEGIN 
+		ROLLBACK TRANSACTION;
 		THROW 50002, 'Fornecedor inativo ou restringido!', 16;
 	END
 	
-	-- insere na tabela Compras
-	INSERT INTO Compras (DataCompra, ValorTotal, IdFornecedor)
-	SELECT DataCompra, NULL, IdFornecedor
-	FROM inserted;
-
-	-- atualiza DataUltimoFornecimento na tabela Fornecedores
 	UPDATE f
     SET f.DataUltimoFornecimento = GETDATE()
     FROM Fornecedores f
@@ -162,7 +178,7 @@ GO
 -- informado pa a inserçao está ativo; se a inserção der certo, atualiza a data da ultima compra na tabela PrincipiosAtivos 
 -- e atualiza ValorTotal na tabela Compras
 GO
-CREATE TRIGGER ValidarItensCompras
+CREATE OR ALTER TRIGGER ValidarItensCompras
 ON ItensCompras
 INSTEAD OF INSERT
 AS 
@@ -180,30 +196,43 @@ BEGIN
 		THROW 50001, 'Princípio Ativo está inativo!', 16;
 	END
 
-	IF EXISTS (
-        SELECT 1
-        FROM inserted i
-        WHERE (SELECT COUNT(*) 
-               FROM ItensCompras 
-               WHERE IdCompra = i.IdCompra) >= 3
-    )
+	IF ((SELECT COUNT(*) FROM inserted) >= 3)
     BEGIN
         THROW 50020, 'Cada compra só pode ter até 3 registros de princípios ativos!', 16;
 	END
 	
-	-- insere na tabela ItensCompra
-	INSERT INTO ItensCompras (Quantidade, ValorUnitario, ValorTotal, IdCompra, IdPrincipioAtivo)
-	SELECT Quantidade, ValorUnitario, (Quantidade * ValorUnitario), IdCompra, IdPrincipioAtivo
-	FROM inserted;
+	IF ((SELECT COUNT(*) FROM inserted) < 1)
+    BEGIN
+        THROW 50021, 'É necessário selecionar pelo menos 1 princípio ativo para realizar a compra!', 16;
+	END
 
-	-- atualiza UltimaCompra na tabela PrincipiosAtivos
+	-- insere na tabela ItensCompra
+	INSERT INTO ItensCompras (Quantidade, ValorUnitario, IdCompra, IdPrincipioAtivo)
+	SELECT Quantidade, ValorUnitario, IdCompra, IdPrincipioAtivo
+	FROM inserted;
+END; 
+GO
+
+GO
+CREATE OR ALTER TRIGGER trg_AtualizarUltimaCompraPrincipiosAtivos
+ON ItensCompras
+AFTER INSERT
+AS
+BEGIN
 	UPDATE pa 
     SET pa.UltimaCompra = GETDATE()
     FROM PrincipiosAtivos pa
     INNER JOIN inserted i 
 	ON pa.Id = i.IdPrincipioAtivo;
+END;
+GO
 
-	-- atualiza ValorTotal na tabela Compras
+GO
+CREATE OR ALTER TRIGGER trg_AtualizarValorTotalCompras
+ON ItensCompras
+AFTER INSERT
+AS
+BEGIN
 	UPDATE c
 	SET c.ValorTotal = (SELECT SUM(ValorTotal) 
                         FROM ItensCompras ic 
@@ -211,14 +240,16 @@ BEGIN
 	FROM Compras c
 	INNER JOIN inserted i 
 	ON c.Id = i.IdCompra;
-END; 
+END;
 GO
+
+
 
 -- Producoes --
 GO
-CREATE TRIGGER ValidarProducoes
+CREATE OR ALTER TRIGGER ValidarProducoes
 ON Producoes
-INSTEAD OF INSERT
+AFTER INSERT
 AS
 BEGIN
 	SET NOCOUNT ON
@@ -230,18 +261,15 @@ BEGIN
 		WHERE m.Situacao = 'I'
 	)
 	BEGIN
+		ROLLBACK TRANSACTION;
 		THROW 50041, 'O medicamento informado não pode ser produzido, pois está inativo!', 16;
 	END
-
-	INSERT INTO Producoes (Quantidade, DataProducao, CDBMedicamento)
-	SELECT Quantidade, DataProducao, CDBMedicamento
-	FROM inserted;
 END;
 GO
 
 -- ItensDeProducao --
 GO
-CREATE TRIGGER ValidarItensProducoes
+CREATE OR ALTER TRIGGER ValidarItensProducoes
 ON ItensProducoes
 INSTEAD OF INSERT
 AS
@@ -259,17 +287,23 @@ BEGIN
 		THROW 50041, 'Princípio Ativo está inativo!', 16;
 	END
 
+	IF ((SELECT COUNT(*) FROM inserted) < 1)
+    BEGIN
+        THROW 50021, 'É necessário selecionar pelo menos 1 princípio ativo para realizar a produção!', 16;
+	END
+
 	INSERT INTO ItensProducoes (QuantidadePrincipio, IdPrincipioAtivo, IdProducao)
 	SELECT QuantidadePrincipio, IdPrincipioAtivo, IdProducao
 	FROM inserted;
 END;
 GO
 
+
 -- // TRIGGERS DE DELETE \\ --
 
 -- Clientes --
 GO
-CREATE TRIGGER DeletarCliente
+CREATE OR ALTER TRIGGER DeletarCliente
 ON Clientes
 INSTEAD OF DELETE
 AS
@@ -280,7 +314,7 @@ GO
 
 -- Fornecedores --
 GO
-CREATE TRIGGER DeletarFornecedor
+CREATE OR ALTER TRIGGER DeletarFornecedor
 ON Fornecedores
 INSTEAD OF DELETE
 AS
@@ -291,7 +325,7 @@ GO
 
 -- PrincipioAtivo --
 GO
-CREATE TRIGGER DeletarPrincipioAtivo
+CREATE OR ALTER TRIGGER DeletarPrincipioAtivo
 ON PrincipiosAtivos
 INSTEAD OF DELETE
 AS
@@ -302,7 +336,7 @@ GO
 
 -- Medicamentos --
 GO
-CREATE TRIGGER DeletarMedicamento
+CREATE OR ALTER TRIGGER DeletarMedicamento
 ON Medicamentos
 INSTEAD OF DELETE
 AS
