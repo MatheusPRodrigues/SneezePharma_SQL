@@ -97,7 +97,7 @@ GO
 
 CREATE OR ALTER PROCEDURE sp_Producoes
 @quantidade INT,
-@cdbMedicamento NUMERIC(13,0),
+@cdbMedicamento CHAR(13),
 @itens Tipo_ItensProducoes READONLY
 AS
 BEGIN
@@ -158,7 +158,7 @@ GO
 
 CREATE OR ALTER PROCEDURE sp_CadastrarCliente
 @nome VARCHAR(255),
-@cpf NUMERIC(11,0),
+@cpf CHAR(11),
 @dataNascimento DATE,
 @idEndereco INT,
 @situacao CHAR(1),
@@ -177,6 +177,89 @@ BEGIN
 
 		EXEC sp_EmailsClientes @idCliente, @emailsClientes;
 		EXEC sp_TelefonesClientes @idCliente, @telefonesClientes;
+
+		COMMIT TRANSACTION;
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRANSACTION;
+
+		THROW;
+	END CATCH
+END;
+GO
+
+
+
+CREATE OR ALTER PROCEDURE sp_EmailsFornecedores
+@idFornecedor INT,
+@emailsFornecedores Tipo_EmailsFornecedores READONLY
+AS
+BEGIN
+	IF ((SELECT COUNT(*) FROM @emailsFornecedores) < 1)
+	BEGIN
+		THROW 50051, 'É necessário cadastrar pelo menos um email para o fornecedor!', 16;
+	END;
+
+	INSERT INTO EmailsFornecedores (Email, IdFornecedor)
+	SELECT Email, @idFornecedor FROM @emailsFornecedores;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_TelefonesFornecedores
+@idFornecedor INT,
+@telefonesFornecedores Tipo_TelefonesFornecedores READONLY
+AS
+BEGIN
+	IF ((SELECT COUNT(*) FROM @telefonesFornecedores) < 1)
+	BEGIN
+		THROW 50051, 'É necessário cadastrar pelo menos um telefone para o fornecedor!', 16;
+	END;
+
+	INSERT INTO TelefonesFornecedores (CodPais, DDD, Numero, IdFornecedor)
+	SELECT CodPais, DDD, Numero, @idFornecedor
+	FROM @telefonesFornecedores;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_EnderecosFornecedores
+@idFornecedor INT,
+@enderecosFornecedores Tipo_EnderecosFornecedores READONLY
+AS
+BEGIN
+	IF ((SELECT COUNT(*) FROM @enderecosFornecedores) < 1)
+	BEGIN
+		THROW 50051, 'É necessário cadastrar pelo menos um endereço para o fornecedor!', 16;
+	END;
+
+	INSERT INTO EnderecosFornecedores (Logradouro, Numero, Complemento, Bairro, Cidade, Estado, Pais, CEP, IdFornecedor)
+	SELECT Logradouro, Numero, Complemento, Bairro, Cidade, Estado, Pais, CEP, @idFornecedor 
+	FROM @enderecosFornecedores;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_CadastrarFornecedor
+@razaoSocial VARCHAR(255),
+@cnpj CHAR(14),
+@dataAbertura DATE,
+@situacao CHAR(1),
+@emailsFornecedores Tipo_EmailsFornecedores READONLY,
+@telefonesFornecedores Tipo_TelefonesFornecedores READONLY,
+@enderecosFornecedores Tipo_EnderecosFornecedores READONLY
+AS
+BEGIN
+	BEGIN TRY
+		BEGIN TRANSACTION;
+		DECLARE @idFornecedor INT;
+
+		INSERT INTO Fornecedores (RazaoSocial, CNPJ, DataAbertura, DataCadastro, Situacao) VALUES
+		(@razaoSocial, @cnpj, @dataAbertura, GETDATE(), @situacao);
+
+		SET @idFornecedor = SCOPE_IDENTITY();
+
+		EXEC sp_EmailsFornecedores @idFornecedor, @emailsFornecedores;
+		EXEC sp_TelefonesFornecedores @idFornecedor, @telefonesFornecedores;
+		EXEC sp_EnderecosFornecedores @idFornecedor, @enderecosFornecedores;
 
 		COMMIT TRANSACTION;
 	END TRY

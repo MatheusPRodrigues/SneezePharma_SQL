@@ -1,9 +1,21 @@
-DECLARE @telefonesClientes Tipo_TelefonesClientes;
-INSERT INTO @telefonesClientes VALUES
-(55, 11, 995468543);
+DECLARE @telefonesFornecedores Tipo_TelefonesFornecedores;
+INSERT INTO @telefonesFornecedores VALUES
+(NULL, NULL, '0800313131');
 
-DECLARE @emailsClientes Tipo_EmailsClientes;
-INSERT INTO @emailsClientes VALUES
-('mathe@gmail.com');
+DECLARE @emailsFornecedores Tipo_EmailsFornecedores;
+INSERT INTO @emailsFornecedores VALUES
+('pira@gmail.com');
 
-EXEC sp_CadastrarCliente 'Matheus', 48309651241, '2001-12-30', 3, 'A', @emailsClientes, @telefonesClientes;
+DECLARE @enderecosFornecedores Tipo_EnderecosFornecedores;
+INSERT INTO @enderecosFornecedores VALUES 
+('Rua jardim', 1004, NULL, 'Jardim Ipiranga', 'Mogi das Cruzes', 'SP', 'Brasil', '43304310');
+
+EXEC sp_CadastrarFornecedor 'Piracanjuba',
+							'19456798534552',
+							'1984-07-04',
+							'A',
+							@emailsFornecedores,
+							@telefonesFornecedores,
+							@enderecosFornecedores;
+
+SELECT * FROM Fornecedores;
