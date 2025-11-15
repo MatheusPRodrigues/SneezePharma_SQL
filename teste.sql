@@ -1,15 +1,9 @@
-DECLARE @ItensProducoes Tipo_ItensProducoes;
+DECLARE @telefonesClientes Tipo_TelefonesClientes;
+INSERT INTO @telefonesClientes VALUES
+(55, 11, 995468543);
 
-INSERT INTO @ItensProducoes VALUES
-(20, 'AI0001'),
-(20, 'AI0002'),
-(20, 'AI0003'),
-(20, 'AI0004');
+DECLARE @emailsClientes Tipo_EmailsClientes;
+INSERT INTO @emailsClientes VALUES
+('mathe@gmail.com');
 
-EXEC sp_Producoes 20, '7891234567892', @ItensProducoes;
-
-SELECT * FROM Producoes;
-SELECT * FROM ItensProducoes;
-
-DELETE FROM ItensProducoes;
-DELETE FROM Producoes;
+EXEC sp_CadastrarCliente 'Matheus', 48309651241, '2001-12-30', 3, 'A', @emailsClientes, @telefonesClientes;

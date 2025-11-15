@@ -122,3 +122,69 @@ BEGIN
 	END CATCH
 END;
 GO
+
+
+
+CREATE OR ALTER PROCEDURE sp_EmailsClientes
+@idCliente INT,
+@emailsClientes Tipo_EmailsClientes READONLY
+AS
+BEGIN
+	IF ((SELECT COUNT(*) FROM @emailsClientes) < 1)
+	BEGIN
+		THROW 50031, 'É necessário cadastrar pelo menos um email para o cliente!', 16;
+	END;
+
+	INSERT INTO EmailsClientes (Email, IdCliente)
+	SELECT Email, @idCliente FROM @emailsClientes;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_TelefonesClientes
+@idCliente INT,
+@telefonesClientes Tipo_TelefonesClientes READONLY
+AS
+BEGIN
+	IF ((SELECT COUNT(*) FROM @telefonesClientes) < 1)
+	BEGIN
+		THROW 50031, 'É necessário cadastrar pelo menos um telefone para o cliente!', 16;
+	END;
+
+	INSERT INTO TelefonesClientes (CodPais, DDD, Numero, IdCliente)
+	SELECT CodPais, DDD, Numero, @idCliente
+	FROM @telefonesClientes;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_CadastrarCliente
+@nome VARCHAR(255),
+@cpf NUMERIC(11,0),
+@dataNascimento DATE,
+@idEndereco INT,
+@situacao CHAR(1),
+@emailsClientes Tipo_EmailsClientes READONLY,
+@telefonesClientes Tipo_TelefonesClientes READONLY
+AS
+BEGIN
+	BEGIN TRY
+		BEGIN TRANSACTION;
+		DECLARE @idCliente INT;
+
+		INSERT INTO Clientes (Nome, CPF, DataNascimento, DataCadastro, IdEndereco, Situacao) VALUES 
+		(@nome, @cpf, @dataNascimento, GETDATE(), @idEndereco, @situacao);
+
+		SET @idCliente = SCOPE_IDENTITY();
+
+		EXEC sp_EmailsClientes @idCliente, @emailsClientes;
+		EXEC sp_TelefonesClientes @idCliente, @telefonesClientes;
+
+		COMMIT TRANSACTION;
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRANSACTION;
+
+		THROW;
+	END CATCH
+END;
+GO

@@ -49,12 +49,21 @@ CREATE TABLE TelefonesClientes (
 	IdCliente INT NOT NULL
 );
 
+CREATE TYPE Tipo_TelefonesClientes AS TABLE(
+	CodPais INT NOT NULL,
+	DDD INT NOT NULL,
+	Numero NUMERIC(9,0) NOT NULL
+);
+
 CREATE TABLE EmailsClientes(
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	Email VARCHAR(64) NOT NULL,
 	IdCliente INT NOT NULL
 );
 
+CREATE TYPE Tipo_EmailsClientes AS TABLE(
+	Email VARCHAR(64) NOT NULL
+);
 
 -- FORNECEDORES --
 CREATE TABLE Fornecedores (
