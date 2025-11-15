@@ -65,7 +65,7 @@ BEGIN
 		THROW 50017, 'Medicamento está inativo ou ainda não foi produzido!', 16;
 	END
 	
-	IF ((SELECT COUNT(*) FROM inserted) >= 3)
+	IF ((SELECT COUNT(*) FROM inserted) > 3)
     BEGIN
         THROW 50020, 'Cada venda só pode ter até 3 registros de medicamentos!', 16;
 	END
@@ -178,7 +178,7 @@ GO
 -- informado pa a inserçao está ativo; se a inserção der certo, atualiza a data da ultima compra na tabela PrincipiosAtivos 
 -- e atualiza ValorTotal na tabela Compras
 GO
-CREATE OR ALTER TRIGGER ValidarItensCompras
+CREATE OR ALTER TRIGGER trg_ValidarItensCompras
 ON ItensCompras
 INSTEAD OF INSERT
 AS 
@@ -196,7 +196,7 @@ BEGIN
 		THROW 50001, 'Princípio Ativo está inativo!', 16;
 	END
 
-	IF ((SELECT COUNT(*) FROM inserted) >= 3)
+	IF ((SELECT COUNT(*) FROM inserted) > 3)
     BEGIN
         THROW 50020, 'Cada compra só pode ter até 3 registros de princípios ativos!', 16;
 	END
@@ -247,7 +247,7 @@ GO
 
 -- Producoes --
 GO
-CREATE OR ALTER TRIGGER ValidarProducoes
+CREATE OR ALTER TRIGGER trg_ValidarProducoes
 ON Producoes
 AFTER INSERT
 AS
@@ -269,7 +269,7 @@ GO
 
 -- ItensDeProducao --
 GO
-CREATE OR ALTER TRIGGER ValidarItensProducoes
+CREATE OR ALTER TRIGGER trg_ValidarItensProducoes
 ON ItensProducoes
 INSTEAD OF INSERT
 AS
@@ -303,7 +303,7 @@ GO
 
 -- Clientes --
 GO
-CREATE OR ALTER TRIGGER DeletarCliente
+CREATE OR ALTER TRIGGER trg_DeletarCliente
 ON Clientes
 INSTEAD OF DELETE
 AS
@@ -314,7 +314,7 @@ GO
 
 -- Fornecedores --
 GO
-CREATE OR ALTER TRIGGER DeletarFornecedor
+CREATE OR ALTER TRIGGER trg_DeletarFornecedor
 ON Fornecedores
 INSTEAD OF DELETE
 AS
@@ -325,7 +325,7 @@ GO
 
 -- PrincipioAtivo --
 GO
-CREATE OR ALTER TRIGGER DeletarPrincipioAtivo
+CREATE OR ALTER TRIGGER trg_DeletarPrincipioAtivo
 ON PrincipiosAtivos
 INSTEAD OF DELETE
 AS
@@ -336,7 +336,7 @@ GO
 
 -- Medicamentos --
 GO
-CREATE OR ALTER TRIGGER DeletarMedicamento
+CREATE OR ALTER TRIGGER trg_DeletarMedicamento
 ON Medicamentos
 INSTEAD OF DELETE
 AS

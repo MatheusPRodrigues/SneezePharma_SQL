@@ -142,7 +142,7 @@ CREATE TABLE ItensVendas (
 	Quantidade INT NOT NULL,
 	ValorTotal DECIMAL(10,2),
 	IdVenda INT NOT NULL,
-	CDBMedicamento NUMERIC(13,0) NOT NULL
+	CDBMedicamento CHAR(13) NOT NULL
 );
 
 CREATE TYPE Tipo_ItensVendas AS TABLE (
