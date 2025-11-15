@@ -110,45 +110,10 @@ JOIN Fornecedores f
 ON f.Id = fr.IdFornecedor
 
 -- Relatório de vendas por período --
-SELECT
-    v.Id'Código da Venda', v.DataVenda 'Data da Venda', v.ValorTotal'Valor Total da Venda',
-	c.CPF, c.Nome,
-    iv.Id'Código do Item',iv.CDBMedicamento'CDB do Medicamento', m.Nome'Medicamento', iv.Quantidade, iv.ValorTotal'Valor Total do Item'
-FROM VendasMedicamentos v
-JOIN Clientes c
-ON c.Id = v.IdCliente
-JOIN ItensVendas iv
-ON v.Id = iv.IdVenda
-JOIN Medicamentos m
-ON m.CDB = iv.CDBMedicamento
-WHERE v.DataVenda BETWEEN '2025-10-20' AND '2025-11-30'
-ORDER BY v.Id, iv.Id;
+EXEC sp_RelatorioVendasPorPeriodo '2025-10-20', '2025-11-30'
 
 -- Relatório de medicamentos mais vendidos --
-SELECT 
-	m.CDB, m.Nome,
-	cm.NomeCategoria'Categoria',
-	SUM(iv.Quantidade)'Total Vendido'
-FROM Medicamentos m
-JOIN CategoriasMedicamentos cm
-ON cm.Id = m.Categoria
-JOIN ItensVendas iv
-ON iv.CDBMedicamento = m.CDB
-GROUP BY 
-	m.CDB, m.Nome, cm.NomeCategoria
-ORDER BY 
-	'Total Vendido' 
-DESC;
+EXEC sp_RelatorioMedicamentosMaisVendidos;
 
 -- Relatório de compras por fornecedor --
-SELECT
-    c.Id AS 'Código da Compra', c.DataCompra AS 'Data da Compra',c.ValorTotal AS 'Valor Total da Compra',
-	f.CNPJ AS 'CNPJ', f.RazaoSocial AS 'Razão Social',
-    i.Id AS 'Código do Item',i.IdPrincipioAtivo AS 'Princípio Ativo', i.Quantidade AS 'Quantidade', i.ValorUnitario AS 'Valor Unitário', i.ValorTotal AS 'Valor Total do Item'
-FROM Compras c
-INNER JOIN Fornecedores f
-ON f.Id = c.IdFornecedor
-INNER JOIN ItensCompras i 
-ON c.Id = i.IdCompra
-WHERE f.CNPJ = '12345678000199'
-ORDER BY c.Id, i.Id;
+EXEC sp_RelatorioComprasPorFornecedor '12345678000199'

@@ -1,5 +1,8 @@
 # SneezePharma_SQL
 
+Anteriormente os registros do projeto SneezePharma eram persistidos em arquivos .TXT.<br>
+Agora a demanda foi criar um Banco de Dados para armazenar esses registros.
+
 # Ordem de Execução dos Scripts
 1 - CREATE_SCHEMA.sql<br>
 2 - TRIGGERS_SNEEZEPHARMA.sql<br>

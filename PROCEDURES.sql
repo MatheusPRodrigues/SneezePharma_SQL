@@ -271,3 +271,64 @@ BEGIN
 	END CATCH
 END;
 GO
+
+
+
+CREATE OR ALTER PROCEDURE sp_RelatorioVendasPorPeriodo
+@dataPassada DATE,
+@dataRequerida DATE
+AS
+BEGIN
+	SELECT
+		v.Id'Código da Venda', v.DataVenda 'Data da Venda', v.ValorTotal'Valor Total da Venda',
+		c.CPF, c.Nome,
+		iv.Id'Código do Item',iv.CDBMedicamento'CDB do Medicamento', m.Nome'Medicamento', iv.Quantidade, iv.ValorTotal'Valor Total do Item'
+	FROM VendasMedicamentos v
+	JOIN Clientes c
+	ON c.Id = v.IdCliente
+	JOIN ItensVendas iv
+	ON v.Id = iv.IdVenda
+	JOIN Medicamentos m
+	ON m.CDB = iv.CDBMedicamento
+	WHERE v.DataVenda BETWEEN @dataPassada AND @dataRequerida
+	ORDER BY v.Id, iv.Id;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_RelatorioMedicamentosMaisVendidos
+AS
+BEGIN
+	SELECT 
+		m.CDB, m.Nome,
+		cm.NomeCategoria'Categoria',
+		SUM(iv.Quantidade)'Total Vendido'
+	FROM Medicamentos m
+	JOIN CategoriasMedicamentos cm
+	ON cm.Id = m.Categoria
+	JOIN ItensVendas iv
+	ON iv.CDBMedicamento = m.CDB
+	GROUP BY 
+		m.CDB, m.Nome, cm.NomeCategoria
+	ORDER BY 
+		'Total Vendido' 
+	DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_RelatorioComprasPorFornecedor
+@cnpj CHAR(14)
+AS
+BEGIN
+	SELECT
+		c.Id AS 'Código da Compra', c.DataCompra AS 'Data da Compra',c.ValorTotal AS 'Valor Total da Compra',
+		f.CNPJ AS 'CNPJ', f.RazaoSocial AS 'Razão Social',
+		i.Id AS 'Código do Item',i.IdPrincipioAtivo AS 'Princípio Ativo', i.Quantidade AS 'Quantidade', i.ValorUnitario AS 'Valor Unitário', i.ValorTotal AS 'Valor Total do Item'
+	FROM Compras c
+	INNER JOIN Fornecedores f
+	ON f.Id = c.IdFornecedor
+	INNER JOIN ItensCompras i 
+	ON c.Id = i.IdCompra
+	WHERE f.CNPJ = @cnpj
+	ORDER BY c.Id, i.Id;
+END;
+GO

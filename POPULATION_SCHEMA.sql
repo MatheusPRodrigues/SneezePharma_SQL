@@ -102,7 +102,7 @@ INSERT INTO @itensProducoes VALUES
 (40, 'AI0002');
 
 EXEC sp_Producoes 20, '7891234567890', @itensProducoes;
-GO;
+GO
 
 DECLARE @itensProducoes Tipo_ItensProducoes;
 INSERT INTO @itensProducoes VALUES
@@ -111,7 +111,7 @@ INSERT INTO @itensProducoes VALUES
 
 
 EXEC sp_Producoes 40, '7891234567891', @itensProducoes;
-GO;
+GO
 
 DECLARE @itensProducoes Tipo_ItensProducoes;
 INSERT INTO @itensProducoes VALUES
@@ -120,7 +120,7 @@ INSERT INTO @itensProducoes VALUES
 
 
 EXEC sp_Producoes 35, '7891234567892', @itensProducoes;
-GO;
+GO
 
 DECLARE @itensProducoes Tipo_ItensProducoes;
 INSERT INTO @itensProducoes VALUES
@@ -130,7 +130,7 @@ INSERT INTO @itensProducoes VALUES
 
 
 EXEC sp_Producoes 20, '7891234567894', @itensProducoes;
-GO;
+GO
 
 -- VendasMedicamentos --
 DECLARE @itensVendas Tipo_ItensVendas;
@@ -170,7 +170,7 @@ EXEC sp_CadastrarFornecedor 'Farmácia Saúde Total LTDA',
 							@emailsFornecedores,
 							@telefonesFornecedores,
 							@enderecosFornecedores;
-GO;
+GO
 
 DECLARE @emailsFornecedores Tipo_EmailsFornecedores;
 INSERT INTO @emailsFornecedores VALUES
@@ -191,7 +191,7 @@ EXEC sp_CadastrarFornecedor 'Drogaria Popular EIRELI',
 							@emailsFornecedores,
 							@telefonesFornecedores,
 							@enderecosFornecedores;
-GO;
+GO
 
 DECLARE @emailsFornecedores Tipo_EmailsFornecedores;
 INSERT INTO @emailsFornecedores VALUES
@@ -212,7 +212,7 @@ EXEC sp_CadastrarFornecedor 'Distribuidora Vida Mais LTDA',
 							@emailsFornecedores,
 							@telefonesFornecedores,
 							@enderecosFornecedores;
-GO;
+GO
 
 DECLARE @emailsFornecedores Tipo_EmailsFornecedores;
 INSERT INTO @emailsFornecedores VALUES
@@ -233,7 +233,7 @@ EXEC sp_CadastrarFornecedor 'Laboratório São Lucas S/A',
 							@emailsFornecedores,
 							@telefonesFornecedores,
 							@enderecosFornecedores;
-GO;
+GO
 
 DECLARE @emailsFornecedores Tipo_EmailsFornecedores;
 INSERT INTO @emailsFornecedores VALUES
@@ -254,7 +254,7 @@ EXEC sp_CadastrarFornecedor 'BioMedic Distribuidora LTDA',
 							@emailsFornecedores,
 							@telefonesFornecedores,
 							@enderecosFornecedores;
-GO;
+GO
 
 -- FornecedoresRestritos -- 
 INSERT INTO FornecedoresRestritos(IdFornecedor) VALUES (4);
@@ -267,7 +267,7 @@ INSERT INTO @itensCompras VALUES
 (3, 15.10, 'AI0003');
 
 EXEC sp_Compras 1, @itensCompras;
-GO;
+GO
 
 DECLARE @itensCompras Tipo_ItensCompras;
 INSERT INTO @itensCompras VALUES
@@ -275,4 +275,4 @@ INSERT INTO @itensCompras VALUES
 (3, 4.50, 'AI0004');
 
 EXEC sp_Compras 5, @itensCompras;
-GO;
+GO
